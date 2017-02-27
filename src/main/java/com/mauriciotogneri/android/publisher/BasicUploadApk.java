@@ -44,7 +44,7 @@ public class BasicUploadApk
             // Create a new edit to make changes to your listing.
             Insert editRequest = edits
                     .insert(ApplicationConfig.PACKAGE_NAME,
-                            null /** no content */);
+                            null);
             AppEdit edit = editRequest.execute();
             final String editId = edit.getId();
             System.out.println(String.format("Created edit with id: %s", editId));
@@ -79,7 +79,7 @@ public class BasicUploadApk
             // Commit changes for edit.
             Commit commitRequest = edits.commit(ApplicationConfig.PACKAGE_NAME, editId);
             AppEdit appEdit = commitRequest.execute();
-            System.out.println(String.format("App edit with id %s has been comitted", appEdit.getId()));
+            System.out.println(String.format("App edit with id %s has been committed", appEdit.getId()));
 
         }
         catch (Exception e)

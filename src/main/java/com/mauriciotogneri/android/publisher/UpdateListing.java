@@ -19,15 +19,14 @@ import java.util.Locale;
 public class UpdateListing
 {
     private static final String US_LISTING_TITLE = "App Title US";
-    private static final String US_LISTING_SHORT_DESCRITPION = "Bacon ipsum";
+    private static final String US_LISTING_SHORT_DESCRIPTION = "Bacon ipsum";
     private static final String US_LISTING_FULL_DESCRIPTION = "Dessert trunk truck";
 
     private static final String UK_LISTING_TITLE = "App Title UK";
-    private static final String UK_LISTING_SHORT_DESCRITPION = "Pancetta ipsum";
+    private static final String UK_LISTING_SHORT_DESCRIPTION = "Pancetta ipsum";
     private static final String UK_LISTING_FULL_DESCRIPTION = "Pudding boot lorry";
 
-    private static final String LISTINGS_PROMO_VIDEO =
-            "https://www.youtube.com/watch?v=ZNSLQlNSPu8";
+    private static final String LISTINGS_PROMO_VIDEO = "https://www.youtube.com/watch?v=ZNSLQlNSPu8";
 
     public static void main(String[] args)
     {
@@ -44,7 +43,7 @@ public class UpdateListing
             // Create an edit to update listing for application.
             Insert editRequest = edits
                     .insert(ApplicationConfig.PACKAGE_NAME,
-                            null /** no content */);
+                            null);
             AppEdit edit = editRequest.execute();
             final String editId = edit.getId();
             System.out.println(String.format("Created edit with id: %s", editId));
@@ -53,7 +52,7 @@ public class UpdateListing
             final Listing newUsListing = new Listing();
             newUsListing.setTitle(US_LISTING_TITLE)
                     .setFullDescription(US_LISTING_FULL_DESCRIPTION)
-                    .setShortDescription(US_LISTING_SHORT_DESCRITPION)
+                    .setShortDescription(US_LISTING_SHORT_DESCRIPTION)
                     .setVideo(LISTINGS_PROMO_VIDEO);
 
             Update updateUSListingsRequest = edits
@@ -70,7 +69,7 @@ public class UpdateListing
             final Listing newUkListing = new Listing();
             newUkListing.setTitle(UK_LISTING_TITLE)
                     .setFullDescription(UK_LISTING_FULL_DESCRIPTION)
-                    .setShortDescription(UK_LISTING_SHORT_DESCRITPION)
+                    .setShortDescription(UK_LISTING_SHORT_DESCRIPTION)
                     .setVideo(LISTINGS_PROMO_VIDEO);
 
             Update updateUkListingsRequest = edits
@@ -86,7 +85,7 @@ public class UpdateListing
             // Commit changes for edit.
             Commit commitRequest = edits.commit(ApplicationConfig.PACKAGE_NAME, editId);
             AppEdit appEdit = commitRequest.execute();
-            System.out.println(String.format("App edit with id %s has been comitted", appEdit.getId()));
+            System.out.println(String.format("App edit with id %s has been committed", appEdit.getId()));
 
         }
         catch (Exception e)

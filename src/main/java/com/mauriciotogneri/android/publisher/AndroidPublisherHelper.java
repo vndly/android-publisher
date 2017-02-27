@@ -44,7 +44,7 @@ public class AndroidPublisherHelper
      */
     private static final String SRC_RESOURCES_KEY_P12 = "src/resources/key.p12";
 
-    /**
+    /*/**
      * Path to the client secrets file (only used for Installed Application
      * auth).
      */
@@ -78,7 +78,7 @@ public class AndroidPublisherHelper
      * Global instance of the {@link DataStoreFactory}. The best practice is to
      * make it a single globally shared instance across your application.
      */
-    private static FileDataStoreFactory dataStoreFactory;
+    //private static FileDataStoreFactory dataStoreFactory;
 
     private static Credential authorizeWithServiceAccount(String serviceAccountEmail)
             throws GeneralSecurityException, IOException
@@ -86,7 +86,7 @@ public class AndroidPublisherHelper
         System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
 
         // Build service account credential.
-        GoogleCredential credential = new GoogleCredential.Builder()
+        return new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JSON_FACTORY)
                 .setServiceAccountId(serviceAccountEmail)
@@ -94,7 +94,6 @@ public class AndroidPublisherHelper
                         Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
                 .setServiceAccountPrivateKeyFromP12File(new File(SRC_RESOURCES_KEY_P12))
                 .build();
-        return credential;
     }
 
     /**
@@ -126,7 +125,7 @@ public class AndroidPublisherHelper
         // Ensure file has been filled out.
         checkClientSecretsFile(clientSecrets);
 
-        dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
 
         // set up authorization code flow
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
