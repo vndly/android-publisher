@@ -1,8 +1,5 @@
 package com.mauriciotogneri.android.publisher;
 
-/**
- * Contains global application configuration, which is required by all samples.
- */
 public final class ApplicationConfig
 {
     private ApplicationConfig()

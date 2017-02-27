@@ -5,6 +5,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.Details;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -19,8 +20,8 @@ import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
 import java.util.Collections;
 
 import javax.annotation.Nullable;
@@ -47,7 +48,7 @@ public class AndroidPublisherHelper
      * Path to the client secrets file (only used for Installed Application
      * auth).
      */
-    private static final String RESOURCES_CLIENT_SECRETS_JSON = "/client_secrets.json";
+    //private static final String RESOURCES_CLIENT_SECRETS_JSON = "/client_secrets.json";
 
     /**
      * Directory to store user credentials (only for Installed Application
@@ -105,12 +106,23 @@ public class AndroidPublisherHelper
     {
         System.out.println("Authorizing using installed application");
 
+        Details details = new Details();
+        details.setClientId("xxx");
+        details.setClientSecret("xxx");
+        details.setRedirectUris(Arrays.asList());
+        details.setAuthUri("https://accounts.google.com/o/oauth2/auth");
+        details.setAuthUri("https://accounts.google.com/o/oauth2/token");
+
         // load client secrets
-        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
+        clientSecrets.setInstalled(details);
+
+        /*GoogleClientSecrets clientSecrets2 = GoogleClientSecrets.load(
                 JSON_FACTORY,
                 new InputStreamReader(
                         AndroidPublisherHelper.class
-                                .getResourceAsStream(RESOURCES_CLIENT_SECRETS_JSON)));
+                                .getResourceAsStream(RESOURCES_CLIENT_SECRETS_JSON)));*/
+
         // Ensure file has been filled out.
         checkClientSecretsFile(clientSecrets);
 
