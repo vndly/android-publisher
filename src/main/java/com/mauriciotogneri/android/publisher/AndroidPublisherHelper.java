@@ -105,7 +105,6 @@ public class AndroidPublisherHelper
      * Authorizes the installed application to access user's protected data.
      *
      * @throws IOException
-     * @throws GeneralSecurityException
      */
     private static Credential authorizeWithInstalledApplication() throws IOException
     {

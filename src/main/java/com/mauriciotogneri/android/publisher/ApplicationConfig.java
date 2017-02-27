@@ -7,7 +7,6 @@ public final class ApplicationConfig
 {
     private ApplicationConfig()
     {
-        // no instance
     }
 
     /**
