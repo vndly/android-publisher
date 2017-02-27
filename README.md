@@ -1,2 +1,1 @@
-# android-publisher
-Android publisher
+# Android Publisher
