@@ -52,7 +52,7 @@ public class AndroidPublisherHelper
      * Path to the client secrets file (only used for Installed Application
      * auth).
      */
-    private static final String RESOURCES_CLIENT_SECRETS_JSON = "/resources/client_secrets.json";
+    private static final String RESOURCES_CLIENT_SECRETS_JSON = "/client_secrets.json";
 
     /**
      * Directory to store user credentials (only for Installed Application
