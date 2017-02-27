@@ -10,11 +10,6 @@ import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Listings.
 import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Listing;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Locale;
 
 /**
@@ -23,8 +18,6 @@ import java.util.Locale;
  */
 public class UpdateListing
 {
-    private static final Log log = LogFactory.getLog(UpdateListing.class);
-
     private static final String US_LISTING_TITLE = "App Title US";
     private static final String US_LISTING_SHORT_DESCRITPION = "Bacon ipsum";
     private static final String US_LISTING_FULL_DESCRIPTION = "Dessert trunk truck";
@@ -54,7 +47,7 @@ public class UpdateListing
                             null /** no content */);
             AppEdit edit = editRequest.execute();
             final String editId = edit.getId();
-            log.info(String.format("Created edit with id: %s", editId));
+            System.out.println(String.format("Created edit with id: %s", editId));
 
             // Update listing for US version of the application.
             final Listing newUsListing = new Listing();
@@ -70,7 +63,7 @@ public class UpdateListing
                             Locale.US.toString(),
                             newUsListing);
             Listing updatedUsListing = updateUSListingsRequest.execute();
-            log.info(String.format("Created new US app listing with title: %s",
+            System.out.println(String.format("Created new US app listing with title: %s",
                     updatedUsListing.getTitle()));
 
             // Create and update listing for UK version of the application.
@@ -87,18 +80,18 @@ public class UpdateListing
                             Locale.UK.toString(),
                             newUkListing);
             Listing updatedUkListing = updateUkListingsRequest.execute();
-            log.info(String.format("Created new UK app listing with title: %s",
+            System.out.println(String.format("Created new UK app listing with title: %s",
                     updatedUkListing.getTitle()));
 
             // Commit changes for edit.
             Commit commitRequest = edits.commit(ApplicationConfig.PACKAGE_NAME, editId);
             AppEdit appEdit = commitRequest.execute();
-            log.info(String.format("App edit with id %s has been comitted", appEdit.getId()));
+            System.out.println(String.format("App edit with id %s has been comitted", appEdit.getId()));
 
         }
-        catch (IOException | GeneralSecurityException ex)
+        catch (Exception e)
         {
-            log.error("Exception was thrown while updating listing", ex);
+            System.err.println("Exception was thrown while updating listing: " + e.getMessage());
         }
     }
 }

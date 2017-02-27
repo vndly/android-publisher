@@ -17,9 +17,6 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -39,8 +36,6 @@ import javax.annotation.Nullable;
  */
 public class AndroidPublisherHelper
 {
-    private static final Log log = LogFactory.getLog(AndroidPublisherHelper.class);
-
     static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
 
     /**
@@ -87,7 +82,7 @@ public class AndroidPublisherHelper
     private static Credential authorizeWithServiceAccount(String serviceAccountEmail)
             throws GeneralSecurityException, IOException
     {
-        log.info(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
+        System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
 
         // Build service account credential.
         GoogleCredential credential = new GoogleCredential.Builder()
@@ -108,7 +103,7 @@ public class AndroidPublisherHelper
      */
     private static Credential authorizeWithInstalledApplication() throws IOException
     {
-        log.info("Authorizing using installed application");
+        System.out.println("Authorizing using installed application");
 
         // load client secrets
         GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
@@ -143,8 +138,7 @@ public class AndroidPublisherHelper
         if (clientSecrets.getDetails().getClientId().startsWith("[[INSERT")
                 || clientSecrets.getDetails().getClientSecret().startsWith("[[INSERT"))
         {
-            log.error("Enter Client ID and Secret from "
-                    + "APIs console into resources/client_secrets.json.");
+            System.out.println("Enter Client ID and Secret from APIs console into resources/client_secrets.json.");
             System.exit(1);
         }
     }

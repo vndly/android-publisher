@@ -32,12 +32,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.2</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-androidpublisher</artifactId>
             <version>v2-rev40-1.22.0</version>

@@ -16,13 +16,7 @@ import com.google.api.services.androidpublisher.model.ApkListing;
 import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Track;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -32,8 +26,6 @@ import java.util.Locale;
  */
 public class UploadApkWithListing
 {
-    private static final Log log = LogFactory.getLog(UploadApkWithListing.class);
-
     private static final String APK_LISTING_RECENT_CHANGES_TEXT = "Apk recent changes en-US";
 
     /**
@@ -60,7 +52,7 @@ public class UploadApkWithListing
                             null /** no content */);
             AppEdit edit = editRequest.execute();
             final String editId = edit.getId();
-            log.info(String.format("Created edit with id: %s", editId));
+            System.out.println(String.format("Created edit with id: %s", editId));
 
             // Upload new apk to developer console
             final String apkPath = UploadApkWithListing.class
@@ -74,7 +66,7 @@ public class UploadApkWithListing
                             editId,
                             apkFile);
             Apk apk = uploadRequest.execute();
-            log.info(String.format("Version code %d has been uploaded",
+            System.out.println(String.format("Version code %d has been uploaded",
                     apk.getVersionCode()));
 
             // Assign apk to beta track.
@@ -87,7 +79,7 @@ public class UploadApkWithListing
                             TRACK_BETA,
                             new Track().setVersionCodes(apkVersionCodes));
             Track updatedTrack = updateTrackRequest.execute();
-            log.info(String.format("Track %s has been updated.", updatedTrack.getTrack()));
+            System.out.println(String.format("Track %s has been updated.", updatedTrack.getTrack()));
 
             // Update recent changes field in apk listing.
             final ApkListing newApkListing = new ApkListing();
@@ -102,19 +94,17 @@ public class UploadApkWithListing
                             Locale.US.toString(),
                             newApkListing);
             updateRecentChangesRequest.execute();
-            log.info("Recent changes has been updated.");
+            System.out.println("Recent changes has been updated.");
 
             // Commit changes for edit.
             Commit commitRequest = edits.commit(ApplicationConfig.PACKAGE_NAME, editId);
             AppEdit appEdit = commitRequest.execute();
-            log.info(String.format("App edit with id %s has been comitted", appEdit.getId()));
+            System.out.println(String.format("App edit with id %s has been comitted", appEdit.getId()));
 
         }
-        catch (IOException | URISyntaxException | GeneralSecurityException ex)
+        catch (Exception e)
         {
-            log.error(
-                    "Exception was thrown while uploading apk and updating recent changes",
-                    ex);
+            System.err.println("Exception was thrown while uploading apk and updating recent changes: " + e.getMessage());
         }
     }
 }
