@@ -204,5 +204,4 @@ public class AndroidPublisherHelper
             HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         }
     }
-
 }
