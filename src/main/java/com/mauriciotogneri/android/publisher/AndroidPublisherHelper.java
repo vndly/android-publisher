@@ -11,59 +11,41 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
-import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Properties;
 
-import javax.annotation.Nullable;
+import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
 
 public class AndroidPublisherHelper
 {
     public static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
 
-    private static final File DATA_STORE_DIR = new File(System.getProperty("user.home"), ".store/android_publisher_api");
-
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-
-    private static HttpTransport HTTP_TRANSPORT;
-
-    private static Credential authorizeWithServiceAccount(String serviceAccountEmail, String keyP12Path) throws Exception
+    private static Credential authorizeWithServiceAccount(String serviceAccountEmail,
+                                                          String keyP12Path,
+                                                          HttpTransport httpTransport,
+                                                          JsonFactory jsonFactory) throws Exception
     {
         System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
 
         return new GoogleCredential.Builder()
-                .setTransport(HTTP_TRANSPORT)
-                .setJsonFactory(JSON_FACTORY)
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
                 .setServiceAccountId(serviceAccountEmail)
-                .setServiceAccountScopes(Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
+                .setServiceAccountScopes(Collections.singleton(ANDROIDPUBLISHER))
                 .setServiceAccountPrivateKeyFromP12File(new File(keyP12Path))
                 .build();
     }
 
-    /**
-     * Authorizes the installed application to access user's protected data.
-     *
-     * @throws IOException
-     */
-    private static Credential authorizeWithInstalledApplication() throws IOException
+    private static Credential authorizeWithInstalledApplication(String clientId,
+                                                                String clientSecret,
+                                                                HttpTransport httpTransport,
+                                                                JsonFactory jsonFactory) throws Exception
     {
         System.out.println("Authorizing using installed application");
-
-        Properties properties = new Properties();
-        properties.load(new FileInputStream("config/config.properties"));
-
-        String clientId = properties.getProperty("client.id");
-        String clientSecret = properties.getProperty("client.secret");
 
         Details details = new Details();
         details.setClientId(clientId);
@@ -72,98 +54,39 @@ public class AndroidPublisherHelper
         details.setAuthUri("https://accounts.google.com/o/oauth2/auth");
         details.setAuthUri("https://accounts.google.com/o/oauth2/token");
 
-        // load client secrets
         GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
         clientSecrets.setInstalled(details);
 
-        /*GoogleClientSecrets clientSecrets2 = GoogleClientSecrets.load(
-                JSON_FACTORY,
-                new InputStreamReader(
-                        AndroidPublisherHelper.class
-                                .getResourceAsStream(RESOURCES_CLIENT_SECRETS_JSON)));*/
+        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(new File(System.getProperty("user.home"),
+                                                                                  ".store/android_publisher_api"));
 
-        // Ensure file has been filled out.
-        checkClientSecretsFile(clientSecrets);
-
-        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
-
-        // set up authorization code flow
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
-                .Builder(HTTP_TRANSPORT,
-                         JSON_FACTORY, clientSecrets,
-                         Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
+                .Builder(httpTransport, jsonFactory, clientSecrets, Collections.singleton(ANDROIDPUBLISHER))
                 .setDataStoreFactory(dataStoreFactory).build();
-        // authorize
+
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
-    /**
-     * Ensure the client secrets file has been filled out.
-     *
-     * @param clientSecrets the GoogleClientSecrets containing data from the
-     *                      file
-     */
-    private static void checkClientSecretsFile(GoogleClientSecrets clientSecrets)
+    public static AndroidPublisher init(Config config) throws Exception
     {
-        if (clientSecrets.getDetails().getClientId().startsWith("[[INSERT")
-                || clientSecrets.getDetails().getClientSecret().startsWith("[[INSERT"))
-        {
-            System.out.println("Enter Client ID and Secret from APIs console into resources/client_secrets.json.");
-            System.exit(1);
-        }
-    }
-
-    /**
-     * Performs all necessary setup steps for running requests against the API
-     * using the Installed Application auth method.
-     *
-     * @param applicationName the name of the application: com.example.app
-     * @return the {@Link AndroidPublisher} service
-     */
-    /*protected static AndroidPublisher init(String applicationName) throws Exception
-    {
-        return init(applicationName, null);
-    }*/
-
-    /**
-     * Performs all necessary setup steps for running requests against the API.
-     *
-     * @param applicationName     the name of the application: com.example.app
-     * @param serviceAccountEmail the Service Account Email (empty if using
-     *                            installed application)
-     * @return the {@Link AndroidPublisher} service
-     * @throws GeneralSecurityException
-     * @throws IOException
-     */
-    protected static AndroidPublisher init(String applicationName, @Nullable String serviceAccountEmail, @Nullable String keyP12Path) throws Exception
-    {
-        Preconditions.checkArgument(!Strings.isNullOrEmpty(applicationName),
-                                    "applicationName cannot be null or empty!");
-
-        // Authorization.
-        newTrustedTransport();
         Credential credential;
-        if (serviceAccountEmail == null || serviceAccountEmail.isEmpty())
+
+        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+        if (config.hasServiceAccount())
         {
-            credential = authorizeWithInstalledApplication();
+            credential = authorizeWithServiceAccount(config.serviceAccountEmail(), config.keyP12Path(), httpTransport, jsonFactory);
+        }
+        else if (config.hasInstalledApplication())
+        {
+            credential = authorizeWithInstalledApplication(config.clientId(), config.clientSecret(), httpTransport, jsonFactory);
         }
         else
         {
-            credential = authorizeWithServiceAccount(serviceAccountEmail, keyP12Path);
+            throw new RuntimeException("No authentication method defined");
         }
 
-        // Set up and return API client.
-        return new AndroidPublisher.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(applicationName)
-                .build();
-    }
-
-    private static void newTrustedTransport() throws GeneralSecurityException,
-            IOException
-    {
-        if (null == HTTP_TRANSPORT)
-        {
-            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        }
+        return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential).setApplicationName(config.applicationName()).build();
     }
 }

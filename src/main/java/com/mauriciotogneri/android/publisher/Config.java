@@ -46,6 +46,11 @@ public class Config
         return projectPath;
     }
 
+    public boolean hasInstalledApplication()
+    {
+        return (clientId != null) && (!clientId.isEmpty()) && (clientSecret != null) && (!clientSecret.isEmpty());
+    }
+
     public String clientId()
     {
         return clientId;
@@ -54,6 +59,11 @@ public class Config
     public String clientSecret()
     {
         return clientSecret;
+    }
+
+    public boolean hasServiceAccount()
+    {
+        return (serviceAccountEmail != null) && (!serviceAccountEmail.isEmpty()) && (keyP12Path != null) && (!keyP12Path.isEmpty());
     }
 
     public String serviceAccountEmail()

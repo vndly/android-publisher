@@ -9,7 +9,6 @@ import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks.Update;
 import com.google.api.services.androidpublisher.model.Apk;
-import com.google.api.services.androidpublisher.model.ApksListResponse;
 import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Track;
 
@@ -39,7 +38,7 @@ public class Main
         switch (option())
         {
             case '1':
-                listApk(config);
+                basicUpload(config);
                 break;
 
             case '2':
@@ -49,7 +48,6 @@ public class Main
                 break;
         }
     }
-
 
     private char option() throws Exception
     {
@@ -87,32 +85,18 @@ public class Main
         process.waitFor();
     }
 
-    private void listApk(Config config) throws Exception
+    private void basicUpload(Config config) throws Exception
     {
         generateApk(config.projectPath());
 
-        AndroidPublisher service = AndroidPublisherHelper.init(config.applicationName(), config.serviceAccountEmail(), config.keyP12Path());
-        Edits edits = service.edits();
-
-        Insert editRequest = edits.insert(config.packageName(), null);
-        AppEdit appEdit = editRequest.execute();
-
-        ApksListResponse apksResponse = edits.apks().list(config.packageName(), appEdit.getId()).execute();
-
-        for (Apk apk : apksResponse.getApks())
-        {
-            System.out.println(String.format("Version: %d - Binary sha1: %s", apk.getVersionCode(), apk.getBinary().getSha1()));
-        }
-    }
-
-    private static void basicUpload(Config config) throws Exception
-    {
-        AndroidPublisher service = AndroidPublisherHelper.init(config.applicationName(), config.serviceAccountEmail(), config.keyP12Path());
+        AndroidPublisher service = AndroidPublisherHelper.init(config);
         Edits edits = service.edits();
 
         Insert editRequest = edits.insert(config.packageName(), null);
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
+
+        System.out.println("\nUploading APK...");
 
         AbstractInputStreamContent apkFile = new FileContent(AndroidPublisherHelper.MIME_TYPE_APK, new File(config.apkPath()));
         Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
