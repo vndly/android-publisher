@@ -1,24 +1,12 @@
 package com.mauriciotogneri.android.publisher;
 
-import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.api.client.repackaged.com.google.common.base.Strings;
-import com.google.api.services.androidpublisher.AndroidPublisher;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Listings.Update;
-import com.google.api.services.androidpublisher.model.AppEdit;
-import com.google.api.services.androidpublisher.model.Listing;
-
-import java.util.Locale;
-
 /**
  * Updates US and UK listings. Changes title, short-description, full-description and video for
  * en-US and en-GB locales.
  */
 public class UpdateListing
 {
-    private static final String US_LISTING_TITLE = "App Title US";
+    /*private static final String US_LISTING_TITLE = "App Title US";
     private static final String US_LISTING_SHORT_DESCRIPTION = "Bacon ipsum";
     private static final String US_LISTING_FULL_DESCRIPTION = "Dessert trunk truck";
 
@@ -92,5 +80,5 @@ public class UpdateListing
         {
             System.err.println("Exception was thrown while updating listing: " + e.getMessage());
         }
-    }
+    }*/
 }

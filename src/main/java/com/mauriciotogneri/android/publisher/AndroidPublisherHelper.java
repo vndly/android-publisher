@@ -13,7 +13,6 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.repackaged.com.google.common.base.Preconditions;
 import com.google.api.client.repackaged.com.google.common.base.Strings;
-import com.google.api.client.util.store.DataStoreFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.AndroidPublisherScopes;
@@ -28,74 +27,26 @@ import java.util.Properties;
 
 import javax.annotation.Nullable;
 
-/**
- * Helper class to initialize the publisher APIs client library.
- * <p>
- * Before making any calls to the API through the client library you need to
- * call the {@link AndroidPublisherHelper#init(String)} method. This will run
- * all precondition checks for for client id and secret setup properly in
- * resources/client_secrets.json and authorize this client against the API.
- * </p>
- */
 public class AndroidPublisherHelper
 {
-    static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
+    public static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
 
-    /**
-     * Path to the private key file (only used for Service Account auth).
-     */
-    //private static final String SRC_RESOURCES_KEY_P12 = "src/resources/key.p12";
-    private static final String SRC_RESOURCES_KEY_P12 = "/home/max/github/android-publisher/config/key.p12";
+    private static final File DATA_STORE_DIR = new File(System.getProperty("user.home"), ".store/android_publisher_api");
 
-    /*/**
-     * Path to the client secrets file (only used for Installed Application
-     * auth).
-     */
-    //private static final String RESOURCES_CLIENT_SECRETS_JSON = "/client_secrets.json";
-
-    /**
-     * Directory to store user credentials (only for Installed Application
-     * auth).
-     */
-    private static final String DATA_STORE_SYSTEM_PROPERTY = "user.home";
-    private static final String DATA_STORE_FILE = ".store/android_publisher_api";
-    private static final File DATA_STORE_DIR =
-            new File(System.getProperty(DATA_STORE_SYSTEM_PROPERTY), DATA_STORE_FILE);
-
-    /**
-     * Global instance of the JSON factory.
-     */
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    /**
-     * Global instance of the HTTP transport.
-     */
     private static HttpTransport HTTP_TRANSPORT;
 
-    /**
-     * Installed application user ID.
-     */
-    private static final String INST_APP_USER_ID = "user";
-
-    /**
-     * Global instance of the {@link DataStoreFactory}. The best practice is to
-     * make it a single globally shared instance across your application.
-     */
-    //private static FileDataStoreFactory dataStoreFactory;
-
-    private static Credential authorizeWithServiceAccount(String serviceAccountEmail)
-            throws GeneralSecurityException, IOException
+    private static Credential authorizeWithServiceAccount(String serviceAccountEmail, String keyP12Path) throws Exception
     {
         System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
 
-        // Build service account credential.
         return new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
                 .setJsonFactory(JSON_FACTORY)
                 .setServiceAccountId(serviceAccountEmail)
-                .setServiceAccountScopes(
-                        Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
-                .setServiceAccountPrivateKeyFromP12File(new File(SRC_RESOURCES_KEY_P12))
+                .setServiceAccountScopes(Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
+                .setServiceAccountPrivateKeyFromP12File(new File(keyP12Path))
                 .build();
     }
 
@@ -139,12 +90,11 @@ public class AndroidPublisherHelper
         // set up authorization code flow
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
                 .Builder(HTTP_TRANSPORT,
-                JSON_FACTORY, clientSecrets,
-                Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
+                         JSON_FACTORY, clientSecrets,
+                         Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER))
                 .setDataStoreFactory(dataStoreFactory).build();
         // authorize
-        return new AuthorizationCodeInstalledApp(
-                flow, new LocalServerReceiver()).authorize(INST_APP_USER_ID);
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
     /**
@@ -170,10 +120,10 @@ public class AndroidPublisherHelper
      * @param applicationName the name of the application: com.example.app
      * @return the {@Link AndroidPublisher} service
      */
-    protected static AndroidPublisher init(String applicationName) throws Exception
+    /*protected static AndroidPublisher init(String applicationName) throws Exception
     {
         return init(applicationName, null);
-    }
+    }*/
 
     /**
      * Performs all necessary setup steps for running requests against the API.
@@ -185,10 +135,10 @@ public class AndroidPublisherHelper
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    protected static AndroidPublisher init(String applicationName, @Nullable String serviceAccountEmail) throws IOException, GeneralSecurityException
+    protected static AndroidPublisher init(String applicationName, @Nullable String serviceAccountEmail, @Nullable String keyP12Path) throws Exception
     {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(applicationName),
-                "applicationName cannot be null or empty!");
+                                    "applicationName cannot be null or empty!");
 
         // Authorization.
         newTrustedTransport();
@@ -199,7 +149,7 @@ public class AndroidPublisherHelper
         }
         else
         {
-            credential = authorizeWithServiceAccount(serviceAccountEmail);
+            credential = authorizeWithServiceAccount(serviceAccountEmail, keyP12Path);
         }
 
         // Set up and return API client.

@@ -1,37 +1,12 @@
 package com.mauriciotogneri.android.publisher;
 
-import com.google.api.client.http.AbstractInputStreamContent;
-import com.google.api.client.http.FileContent;
-import com.google.api.client.repackaged.com.google.common.base.Preconditions;
-import com.google.api.client.repackaged.com.google.common.base.Strings;
-import com.google.api.services.androidpublisher.AndroidPublisher;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apklistings;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apks.Upload;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks.Update;
-import com.google.api.services.androidpublisher.model.Apk;
-import com.google.api.services.androidpublisher.model.ApkListing;
-import com.google.api.services.androidpublisher.model.AppEdit;
-import com.google.api.services.androidpublisher.model.Track;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 /**
  * Uploads an apk to the alpha track and updates recent changes description.
  */
 public class UploadApkWithListing
 {
-    private static final String APK_LISTING_RECENT_CHANGES_TEXT = "Apk recent changes en-US";
+    /*private static final String APK_LISTING_RECENT_CHANGES_TEXT = "Apk recent changes en-US";
 
-    /**
-     * Track for uploading the apk, can be 'alpha', beta', 'production' or
-     * 'rollout'.
-     */
     private static final String TRACK_BETA = "beta";
 
     public static void main(String[] args)
@@ -106,5 +81,5 @@ public class UploadApkWithListing
         {
             System.err.println("Exception was thrown while uploading apk and updating recent changes: " + e.getMessage());
         }
-    }
+    }*/
 }
