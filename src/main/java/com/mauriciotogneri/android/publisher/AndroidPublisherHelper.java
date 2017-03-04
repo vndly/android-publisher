@@ -19,10 +19,12 @@ import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Properties;
 
 import javax.annotation.Nullable;
 
@@ -42,7 +44,8 @@ public class AndroidPublisherHelper
     /**
      * Path to the private key file (only used for Service Account auth).
      */
-    private static final String SRC_RESOURCES_KEY_P12 = "src/resources/key.p12";
+    //private static final String SRC_RESOURCES_KEY_P12 = "src/resources/key.p12";
+    private static final String SRC_RESOURCES_KEY_P12 = "/home/max/github/android-publisher/config/key.p12";
 
     /*/**
      * Path to the client secrets file (only used for Installed Application
@@ -105,10 +108,16 @@ public class AndroidPublisherHelper
     {
         System.out.println("Authorizing using installed application");
 
+        Properties properties = new Properties();
+        properties.load(new FileInputStream("config/config.properties"));
+
+        String clientId = properties.getProperty("client.id");
+        String clientSecret = properties.getProperty("client.secret");
+
         Details details = new Details();
-        details.setClientId("xxx");
-        details.setClientSecret("xxx");
-        details.setRedirectUris(Arrays.asList());
+        details.setClientId(clientId);
+        details.setClientSecret(clientSecret);
+        details.setRedirectUris(Arrays.asList("http://localhost:35652/Callback"));
         details.setAuthUri("https://accounts.google.com/o/oauth2/auth");
         details.setAuthUri("https://accounts.google.com/o/oauth2/token");
 
@@ -176,8 +185,7 @@ public class AndroidPublisherHelper
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    protected static AndroidPublisher init(String applicationName,
-                                           @Nullable String serviceAccountEmail) throws IOException, GeneralSecurityException
+    protected static AndroidPublisher init(String applicationName, @Nullable String serviceAccountEmail) throws IOException, GeneralSecurityException
     {
         Preconditions.checkArgument(!Strings.isNullOrEmpty(applicationName),
                 "applicationName cannot be null or empty!");

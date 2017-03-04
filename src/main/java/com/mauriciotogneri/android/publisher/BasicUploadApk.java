@@ -49,10 +49,8 @@ public class BasicUploadApk
             final String editId = edit.getId();
             System.out.println(String.format("Created edit with id: %s", editId));
 
-            // Upload new apk to developer console
-            final String apkPath = BasicUploadApk.class
-                    .getResource(ApplicationConfig.APK_FILE_PATH)
-                    .toURI().getPath();
+            final String apkPath = "/home/max/github/android-publisher-test/app/build/outputs/apk/app-release.apk";
+
             final AbstractInputStreamContent apkFile =
                     new FileContent(AndroidPublisherHelper.MIME_TYPE_APK, new File(apkPath));
             Upload uploadRequest = edits
