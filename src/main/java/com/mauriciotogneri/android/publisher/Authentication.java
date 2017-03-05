@@ -20,7 +20,7 @@ import java.util.Collections;
 
 import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
 
-public class Authentication
+class Authentication
 {
     private Credential authorizeWithServiceAccount(String serviceAccountEmail,
                                                    String keyP12Path,
@@ -65,7 +65,7 @@ public class Authentication
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
-    public AndroidPublisher publisher(Config config) throws Exception
+    AndroidPublisher publisher(Config config) throws Exception
     {
         Credential credential;
 

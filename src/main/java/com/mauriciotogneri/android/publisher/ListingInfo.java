@@ -1,36 +1,28 @@
 package com.mauriciotogneri.android.publisher;
 
-public class ListingInfo
+class ListingInfo
 {
-    private final String locale;
-    private final String title;
-    private final String shortDescription;
-    private final String fullDescription;
+    private String locale;
+    private String title;
+    private String shortDescription;
+    private String fullDescription;
 
-    public ListingInfo(String locale, String title, String shortDescription, String fullDescription)
-    {
-        this.locale = locale;
-        this.title = title;
-        this.shortDescription = shortDescription;
-        this.fullDescription = fullDescription;
-    }
-
-    public String locale()
+    String locale()
     {
         return locale;
     }
 
-    public String title()
+    String title()
     {
         return title;
     }
 
-    public String shortDescription()
+    String shortDescription()
     {
         return shortDescription;
     }
 
-    public String fullDescription()
+    String fullDescription()
     {
         return fullDescription;
     }

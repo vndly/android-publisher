@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Properties;
 
-public class Config
+class Config
 {
     private final String applicationName;
     private final String packageName;
@@ -20,7 +20,7 @@ public class Config
     private final String apkPath;
     private final String track;
 
-    public Config(String configPath) throws Exception
+    Config(String configPath) throws Exception
     {
         Properties properties = new Properties();
         properties.load(new FileInputStream(configPath));
@@ -37,32 +37,32 @@ public class Config
         this.track = properties.getProperty("track");
     }
 
-    public String applicationName()
+    String applicationName()
     {
         return applicationName;
     }
 
-    public String packageName()
+    String packageName()
     {
         return packageName;
     }
 
-    public String projectPath()
+    String projectPath()
     {
         return projectPath;
     }
 
-    public boolean hasInstalledApplication()
+    boolean hasInstalledApplication()
     {
         return (clientId != null) && (!clientId.isEmpty()) && (clientSecret != null) && (!clientSecret.isEmpty());
     }
 
-    public String clientId()
+    String clientId()
     {
         return clientId;
     }
 
-    public String clientSecret()
+    String clientSecret()
     {
         return clientSecret;
     }
@@ -72,27 +72,27 @@ public class Config
         return (serviceAccountEmail != null) && (!serviceAccountEmail.isEmpty()) && (keyP12Path != null) && (!keyP12Path.isEmpty());
     }
 
-    public String serviceAccountEmail()
+    String serviceAccountEmail()
     {
         return serviceAccountEmail;
     }
 
-    public String keyP12Path()
+    String keyP12Path()
     {
         return keyP12Path;
     }
 
-    public String apkPath()
+    String apkPath()
     {
         return apkPath;
     }
 
-    public String track()
+    String track()
     {
         return track;
     }
 
-    public ListingInfo[] listing() throws Exception
+    ListingInfo[] listing() throws Exception
     {
         String json = new String(Files.readAllBytes(Paths.get(listingPath)), "UTF-8");
         Gson gson = new Gson();
