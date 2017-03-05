@@ -1,17 +1,35 @@
 # Android Publisher
 
-https://github.com/googlesamples/android-play-publisher-api/tree/master/v2/java
+The main class receives as a parameter the path of the config file with has the following format:
 
-Add a file called `client_secrets.json` in `src/main/resources` with the following content:
+```ini
+application.name=???
+package.name=???
+project.path=???
+client.id=???
+client.secret=???
+service.account.email=???
+key.p12.path=???
+listing.path=???
+apk.path=???
+track=(alpha, beta, production or rollout)
+```
+
+The listing json file must have the following format:
 
 ```json
-{
-    "installed": {
-        "client_id": "xxx",
-        "client_secret": "xxx",
-        "redirect_uris": [],
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token"
+[
+    {
+        "locale": "en_US",
+        "title": "Test Publish",
+        "shortDescription": "This is the short description.",
+        "fullDescription": "This is the full description."
+    },
+    {
+        "locale": "es_ES",
+        "title": "Test Publish",
+        "shortDescription": "Ésta es la descripción corta.",
+        "fullDescription": "Ésta es la descripción larga."
     }
-}
+]
 ```
