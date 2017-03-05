@@ -40,14 +40,11 @@ public class Main
         switch (option())
         {
             case '1':
-                basicUpload(config);
+                uploadApk(config);
                 break;
 
             case '2':
                 updateListing(config);
-                break;
-
-            case '3':
                 break;
         }
     }
@@ -57,7 +54,6 @@ public class Main
         System.out.println("Choose an option:");
         System.out.println("1) Upload APK");
         System.out.println("2) Update Listing");
-        System.out.println("3) YYY\n");
 
         System.out.print("Option: ");
 
@@ -88,7 +84,7 @@ public class Main
         process.waitFor();
     }
 
-    private void basicUpload(Config config) throws Exception
+    private void uploadApk(Config config) throws Exception
     {
         generateApk(config.projectPath());
 
@@ -102,7 +98,7 @@ public class Main
 
         System.out.println("\nUploading APK...");
 
-        AbstractInputStreamContent apkFile = new FileContent(Authentication.MIME_TYPE_APK, new File(config.apkPath()));
+        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apkPath()));
         Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
         Apk apk = uploadRequest.execute();
 
@@ -120,6 +116,18 @@ public class Main
         Track updatedTrack = updateTrackRequest.execute();
 
         System.out.println(String.format("Track '%s' has been updated", updatedTrack.getTrack()));
+
+        /*ApkListing newApkListing = new ApkListing();
+        newApkListing.setRecentChanges("...");
+
+        Apklistings.Update updateRecentChangesRequest = edits
+                .apklistings()
+                .update(config.packageName(),
+                        editId,
+                        apk.getVersionCode(),
+                        Locale.US.toString(),
+                        newApkListing);
+        updateRecentChangesRequest.execute();*/
 
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();

@@ -22,8 +22,6 @@ import static com.google.api.services.androidpublisher.AndroidPublisherScopes.AN
 
 public class Authentication
 {
-    public static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
-
     private Credential authorizeWithServiceAccount(String serviceAccountEmail,
                                                    String keyP12Path,
                                                    HttpTransport httpTransport,
