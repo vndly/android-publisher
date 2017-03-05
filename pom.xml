@@ -5,9 +5,19 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.mauriciotogneri.android</groupId>
-    <artifactId>publisher</artifactId>
+    <groupId>com.mauriciotogneri</groupId>
+    <artifactId>android-publisher</artifactId>
     <version>1.0.0</version>
+    <name>Android Publisher</name>
+    <packaging>jar</packaging>
+    <url>https://github.com/mauriciotogneri/android-publisher</url>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://github.com/mauriciotogneri/android-publisher/blob/master/LICENSE.md</url>
+            <distribution>site</distribution>
+        </license>
+    </licenses>
 
     <build>
         <plugins>
@@ -20,6 +30,33 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.0.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.mauriciotogneri.android.publisher.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 
