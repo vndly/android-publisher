@@ -1,6 +1,10 @@
 package com.mauriciotogneri.android.publisher;
 
+import com.google.gson.Gson;
+
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 public class Config
@@ -12,6 +16,7 @@ public class Config
     private final String clientSecret;
     private final String serviceAccountEmail;
     private final String keyP12Path;
+    private final String listingPath;
     private final String apkPath;
     private final String track;
 
@@ -27,6 +32,7 @@ public class Config
         this.clientSecret = properties.getProperty("client.secret");
         this.serviceAccountEmail = properties.getProperty("service.account.email");
         this.keyP12Path = properties.getProperty("key.p12.path");
+        this.listingPath = properties.getProperty("listing.path");
         this.apkPath = properties.getProperty("apk.path");
         this.track = properties.getProperty("track");
     }
@@ -61,7 +67,7 @@ public class Config
         return clientSecret;
     }
 
-    public boolean hasServiceAccount()
+    boolean hasServiceAccount()
     {
         return (serviceAccountEmail != null) && (!serviceAccountEmail.isEmpty()) && (keyP12Path != null) && (!keyP12Path.isEmpty());
     }
@@ -84,5 +90,13 @@ public class Config
     public String track()
     {
         return track;
+    }
+
+    public ListingInfo[] listing() throws Exception
+    {
+        String json = new String(Files.readAllBytes(Paths.get(listingPath)), "UTF-8");
+        Gson gson = new Gson();
+
+        return gson.fromJson(json, ListingInfo[].class);
     }
 }

@@ -20,14 +20,14 @@ import java.util.Collections;
 
 import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
 
-public class AndroidPublisherHelper
+public class Authentication
 {
     public static final String MIME_TYPE_APK = "application/vnd.android.package-archive";
 
-    private static Credential authorizeWithServiceAccount(String serviceAccountEmail,
-                                                          String keyP12Path,
-                                                          HttpTransport httpTransport,
-                                                          JsonFactory jsonFactory) throws Exception
+    private Credential authorizeWithServiceAccount(String serviceAccountEmail,
+                                                   String keyP12Path,
+                                                   HttpTransport httpTransport,
+                                                   JsonFactory jsonFactory) throws Exception
     {
         System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
 
@@ -40,10 +40,10 @@ public class AndroidPublisherHelper
                 .build();
     }
 
-    private static Credential authorizeWithInstalledApplication(String clientId,
-                                                                String clientSecret,
-                                                                HttpTransport httpTransport,
-                                                                JsonFactory jsonFactory) throws Exception
+    private Credential authorizeWithInstalledApplication(String clientId,
+                                                         String clientSecret,
+                                                         HttpTransport httpTransport,
+                                                         JsonFactory jsonFactory) throws Exception
     {
         System.out.println("Authorizing using installed application");
 
@@ -67,7 +67,7 @@ public class AndroidPublisherHelper
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
 
-    public static AndroidPublisher init(Config config) throws Exception
+    public AndroidPublisher publisher(Config config) throws Exception
     {
         Credential credential;
 
