@@ -27,7 +27,7 @@ public class Main
         if (args.length > 0)
         {
             Main main = new Main();
-            main.start(new Config(args[0]));
+            main.start(new Config(args[0]), parameterOption(args));
         }
         else
         {
@@ -35,33 +35,45 @@ public class Main
         }
     }
 
-    private void start(Config config) throws Exception
+    private static String parameterOption(String[] args)
     {
-        switch (option())
+        return (args.length > 1) ? args[1] : null;
+    }
+
+    private void start(Config config, String defaultOption) throws Exception
+    {
+        switch (option(defaultOption))
         {
-            case '1':
+            case "1":
                 uploadApk(config);
                 break;
 
-            case '2':
+            case "2":
                 updateListing(config);
                 break;
         }
     }
 
-    private char option() throws Exception
+    private String option(String defaultOption) throws Exception
     {
-        System.out.println("Choose an option:");
-        System.out.println("1) Upload APK");
-        System.out.println("2) Update Listing");
+        if ((defaultOption == null) || (defaultOption.isEmpty()))
+        {
+            System.out.println("Choose an option:");
+            System.out.println("1) Upload APK");
+            System.out.println("2) Update Listing");
 
-        System.out.print("Option: ");
+            System.out.print("Option: ");
 
-        char option = (char) System.in.read();
+            char option = (char) System.in.read();
 
-        System.out.println();
+            System.out.println();
 
-        return option;
+            return String.valueOf(option);
+        }
+        else
+        {
+            return defaultOption;
+        }
     }
 
     private void generateApk(String projectPath) throws Exception

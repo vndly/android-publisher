@@ -1,6 +1,6 @@
 # Android Publisher
 
-The main class receives as a parameter the path of the config file with has the following format:
+The main class receives as a first parameter the path of the config file with has the following format:
 
 ```ini
 application.name=???
@@ -14,6 +14,10 @@ listing.path=???
 apk.path=???
 track=(alpha, beta, production or rollout)
 ```
+
+The second parameter can be:
+* 1: Upload APK
+* 2: Update listing
 
 The listing json file must have the following format:
 
