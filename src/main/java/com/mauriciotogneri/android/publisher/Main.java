@@ -14,9 +14,7 @@ import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Listing;
 import com.google.api.services.androidpublisher.model.Track;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,30 +74,8 @@ public class Main
         }
     }
 
-    private void generateApk(String projectPath) throws Exception
-    {
-        System.out.println("Building APK...");
-
-        Runtime runtime = Runtime.getRuntime();
-        Process process = runtime.exec("./gradlew assembleRelease", new String[0], new File(projectPath));
-
-        InputStreamReader inputStreamReader = new InputStreamReader(process.getInputStream());
-        BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-        String line;
-
-        while ((line = bufferedReader.readLine()) != null)
-        {
-            System.out.println(line);
-        }
-
-        process.waitFor();
-    }
-
     private void uploadApk(Config config) throws Exception
     {
-        generateApk(config.projectPath());
-
         Authentication authentication = new Authentication();
         AndroidPublisher service = authentication.publisher(config);
         Edits edits = service.edits();
