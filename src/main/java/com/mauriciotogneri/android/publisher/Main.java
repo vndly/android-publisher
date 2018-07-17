@@ -54,13 +54,13 @@ public class Main
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        Logger.log("\nUploading APK...");
+        Logger.log("Uploading APK...");
 
         AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apkPath()));
         Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
         Apk apk = uploadRequest.execute();
 
-        Logger.log("Version code %d has been uploaded", apk.getVersionCode());
+        Logger.log("APK with version code %d has been uploaded", apk.getVersionCode());
 
         List<Integer> apkVersionCodes = new ArrayList<>();
         apkVersionCodes.add(apk.getVersionCode());
@@ -73,7 +73,7 @@ public class Main
 
         Track updatedTrack = updateTrackRequest.execute();
 
-        Logger.log("Track '%s' has been updated", updatedTrack.getTrack());
+        Logger.log("APK added to track '%s'", updatedTrack.getTrack());
 
         /*ApkListing newApkListing = new ApkListing();
         newApkListing.setRecentChanges("...");
@@ -103,7 +103,7 @@ public class Main
         String editId = edit.getId();
 
         String locale = "en-us";
-        String version = "v5";
+        String version = "v6";
 
         Listing newListing = new Listing();
         newListing.setTitle("Title " + version);
@@ -119,12 +119,8 @@ public class Main
 
         updateListingsRequest.execute();
 
-        Logger.log("Updated new '%s' app listing", locale);
-
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();
-
-        Logger.log("Changes have been committed");
     }
 
     private AndroidPublisher publisher(Config config) throws Exception
@@ -132,7 +128,7 @@ public class Main
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-        Logger.log("Authorizing using Service Account...");
+        Logger.log("Authorizing using service account");
 
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(httpTransport)
