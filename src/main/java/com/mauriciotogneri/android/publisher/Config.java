@@ -15,7 +15,7 @@ class Config
     private final String clientId;
     private final String clientSecret;
     private final String serviceAccountEmail;
-    private final String keyP12Path;
+    private final String serviceAccountP12;
     private final String listingPath;
     private final String apkPath;
     private final String track;
@@ -31,7 +31,7 @@ class Config
         this.clientId = properties.getProperty("client.id");
         this.clientSecret = properties.getProperty("client.secret");
         this.serviceAccountEmail = properties.getProperty("service.account.email");
-        this.keyP12Path = properties.getProperty("key.p12.path");
+        this.serviceAccountP12 = properties.getProperty("service.account.p12.path");
         this.listingPath = properties.getProperty("listing.path");
         this.apkPath = properties.getProperty("apk.path");
         this.track = properties.getProperty("track");
@@ -69,7 +69,7 @@ class Config
 
     boolean hasServiceAccount()
     {
-        return (serviceAccountEmail != null) && (!serviceAccountEmail.isEmpty()) && (keyP12Path != null) && (!keyP12Path.isEmpty());
+        return (serviceAccountEmail != null) && (!serviceAccountEmail.isEmpty()) && (serviceAccountP12 != null) && (!serviceAccountP12.isEmpty());
     }
 
     String serviceAccountEmail()
@@ -79,7 +79,7 @@ class Config
 
     String keyP12Path()
     {
-        return keyP12Path;
+        return serviceAccountP12;
     }
 
     String apkPath()

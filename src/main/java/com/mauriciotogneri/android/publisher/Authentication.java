@@ -1,21 +1,20 @@
 package com.mauriciotogneri.android.publisher;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.Details;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Listings;
+import com.google.api.services.androidpublisher.model.AppEdit;
+import com.google.api.services.androidpublisher.model.Listing;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 
 import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
@@ -38,53 +37,63 @@ class Authentication
                 .build();
     }
 
-    private Credential authorizeWithInstalledApplication(String clientId,
-                                                         String clientSecret,
-                                                         HttpTransport httpTransport,
-                                                         JsonFactory jsonFactory) throws Exception
-    {
-        System.out.println("Authorizing using installed application");
-
-        Details details = new Details();
-        details.setClientId(clientId);
-        details.setClientSecret(clientSecret);
-        details.setRedirectUris(Arrays.asList("http://localhost:35652/Callback"));
-        details.setAuthUri("https://accounts.google.com/o/oauth2/auth");
-        details.setAuthUri("https://accounts.google.com/o/oauth2/token");
-
-        GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
-        clientSecrets.setInstalled(details);
-
-        FileDataStoreFactory dataStoreFactory = new FileDataStoreFactory(new File(System.getProperty("user.home"),
-                                                                                  ".store/android_publisher_api"));
-
-        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow
-                .Builder(httpTransport, jsonFactory, clientSecrets, Collections.singleton(ANDROIDPUBLISHER))
-                .setDataStoreFactory(dataStoreFactory).build();
-
-        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
-    }
-
     AndroidPublisher publisher(Config config) throws Exception
     {
-        Credential credential;
-
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-        if (config.hasServiceAccount())
-        {
-            credential = authorizeWithServiceAccount(config.serviceAccountEmail(), config.keyP12Path(), httpTransport, jsonFactory);
-        }
-        else if (config.hasInstalledApplication())
-        {
-            credential = authorizeWithInstalledApplication(config.clientId(), config.clientSecret(), httpTransport, jsonFactory);
-        }
-        else
-        {
-            throw new RuntimeException("No authentication method defined");
-        }
+        Credential credential = authorizeWithServiceAccount(config.serviceAccountEmail(), config.keyP12Path(), httpTransport, jsonFactory);
 
         return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential).setApplicationName(config.applicationName()).build();
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+        GoogleCredential credential = new GoogleCredential.Builder()
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
+                .setServiceAccountId("")
+                .setServiceAccountScopes(Collections.singleton(ANDROIDPUBLISHER))
+                .setServiceAccountPrivateKeyFromP12File(new File("service-account.p12"))
+                .build();
+
+        AndroidPublisher publisher = new AndroidPublisher.Builder(httpTransport, jsonFactory, credential)
+                .setApplicationName("Test Publish")
+                .build();
+
+        System.out.println(publisher);
+
+        Edits edits = publisher.edits();
+
+        String packageName = "com.mauriciotogneri.testpublish";
+        String locale = "en-us";
+
+        Insert editRequest = edits.insert(packageName, null);
+        AppEdit edit = editRequest.execute();
+        String editId = edit.getId();
+
+        Listing newListing = new Listing();
+        newListing.setTitle("Title v1");
+        newListing.setShortDescription("Short description v1");
+        newListing.setFullDescription("Full description v1");
+
+        Listings.Update updateListingsRequest = edits
+                .listings()
+                .update(packageName,
+                        editId,
+                        locale,
+                        newListing);
+
+        updateListingsRequest.execute();
+
+        System.out.println(String.format("Updated new '%s' app listing", locale));
+
+        Commit commitRequest = edits.commit(packageName, editId);
+        commitRequest.execute();
+
+        System.out.println("Changes have been committed");
     }
 }
