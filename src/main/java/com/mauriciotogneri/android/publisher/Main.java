@@ -118,10 +118,7 @@ public class Main
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        for (ListingInfo listingInfo : config.listing())
-        {
-            updateListing(edits, editId, config.packageName(), listingInfo);
-        }
+        updateListing(edits, editId, config.packageName());
 
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();
@@ -129,23 +126,26 @@ public class Main
         Logger.log("Changes have been committed");
     }
 
-    private void updateListing(Edits edits, String editId, String packageName, ListingInfo listing) throws Exception
+    private void updateListing(Edits edits, String editId, String packageName) throws Exception
     {
+        String locale = "en-us";
+        String version = "v4";
+
         Listing newListing = new Listing();
-        newListing.setTitle(listing.title());
-        newListing.setShortDescription(listing.shortDescription());
-        newListing.setFullDescription(listing.fullDescription());
+        newListing.setTitle("Title " + version);
+        newListing.setShortDescription("Short description " + version);
+        newListing.setFullDescription("Full description " + version);
 
         Listings.Update updateListingsRequest = edits
                 .listings()
                 .update(packageName,
                         editId,
-                        listing.locale(),
+                        locale,
                         newListing);
 
         updateListingsRequest.execute();
 
-        Logger.log("Updated new '%s' app listing", listing.locale());
+        Logger.log("Updated new '%s' app listing", locale);
     }
 
     private AndroidPublisher publisher(Config config) throws Exception
