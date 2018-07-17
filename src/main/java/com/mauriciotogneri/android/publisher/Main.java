@@ -25,7 +25,7 @@ public class Main
         if (args.length > 0)
         {
             Main main = new Main();
-            main.start(new Config(args[0]), parameterOption(args));
+            main.start(new Config(args[0]), parameterOperation(args));
         }
         else
         {
@@ -33,14 +33,14 @@ public class Main
         }
     }
 
-    private static String parameterOption(String[] args)
+    private static String parameterOperation(String[] args)
     {
-        return (args.length > 1) ? args[1] : null;
+        return (args.length > 1) ? args[1] : "";
     }
 
-    private void start(Config config, String defaultOption) throws Exception
+    private void start(Config config, String operation) throws Exception
     {
-        switch (option(defaultOption))
+        switch (operation)
         {
             case "1":
                 uploadApk(config);
@@ -49,28 +49,6 @@ public class Main
             case "2":
                 updateListing(config);
                 break;
-        }
-    }
-
-    private String option(String defaultOption) throws Exception
-    {
-        if ((defaultOption == null) || (defaultOption.isEmpty()))
-        {
-            System.out.println("Choose an option:");
-            System.out.println("1) Upload APK");
-            System.out.println("2) Update Listing");
-
-            System.out.print("Option: ");
-
-            char option = (char) System.in.read();
-
-            System.out.println();
-
-            return String.valueOf(option);
-        }
-        else
-        {
-            return defaultOption;
         }
     }
 
@@ -84,13 +62,13 @@ public class Main
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        System.out.println("\nUploading APK...");
+        Logger.log("\nUploading APK...");
 
         AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apkPath()));
         Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
         Apk apk = uploadRequest.execute();
 
-        System.out.println(String.format("Version code %d has been uploaded", apk.getVersionCode()));
+        Logger.log("Version code %d has been uploaded", apk.getVersionCode());
 
         List<Integer> apkVersionCodes = new ArrayList<>();
         apkVersionCodes.add(apk.getVersionCode());
@@ -103,7 +81,7 @@ public class Main
 
         Track updatedTrack = updateTrackRequest.execute();
 
-        System.out.println(String.format("Track '%s' has been updated", updatedTrack.getTrack()));
+        Logger.log("Track '%s' has been updated", updatedTrack.getTrack());
 
         /*ApkListing newApkListing = new ApkListing();
         newApkListing.setRecentChanges("...");
@@ -120,7 +98,7 @@ public class Main
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();
 
-        System.out.println("Changes have been committed");
+        Logger.log("Changes have been committed");
     }
 
     private void updateListing(Config config) throws Exception
@@ -141,7 +119,7 @@ public class Main
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();
 
-        System.out.println("Changes have been committed");
+        Logger.log("Changes have been committed");
     }
 
     private void updateListing(Edits edits, String editId, String packageName, ListingInfo listing) throws Exception
@@ -160,6 +138,6 @@ public class Main
 
         updateListingsRequest.execute();
 
-        System.out.println(String.format("Updated new '%s' app listing", listing.locale()));
+        Logger.log("Updated new '%s' app listing", listing.locale());
     }
 }

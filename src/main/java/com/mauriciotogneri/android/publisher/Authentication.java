@@ -20,7 +20,7 @@ class Authentication
                                                    HttpTransport httpTransport,
                                                    JsonFactory jsonFactory) throws Exception
     {
-        System.out.println(String.format("Authorizing using Service Account: %s", serviceAccountEmail));
+        Logger.log("Authorizing using Service Account: %s", serviceAccountEmail);
 
         return new GoogleCredential.Builder()
                 .setTransport(httpTransport)
