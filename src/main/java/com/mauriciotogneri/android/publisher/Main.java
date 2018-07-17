@@ -33,8 +33,11 @@ public class Main
     {
         if (args.length > 0)
         {
+            Config config = new Config(args[0]);
+
             Main main = new Main();
-            main.start(new Config(args[0]), parameterOperation(args));
+            //main.publish(config);
+            main.updateListing(config);
         }
         else
         {
@@ -42,26 +45,7 @@ public class Main
         }
     }
 
-    private static String parameterOperation(String[] args)
-    {
-        return (args.length > 1) ? args[1] : "";
-    }
-
-    private void start(Config config, String operation) throws Exception
-    {
-        switch (operation)
-        {
-            case "1":
-                uploadApk(config);
-                break;
-
-            case "2":
-                updateListing(config);
-                break;
-        }
-    }
-
-    private void uploadApk(Config config) throws Exception
+    private void publish(Config config) throws Exception
     {
         AndroidPublisher service = publisher(config);
         Edits edits = service.edits();
@@ -118,18 +102,8 @@ public class Main
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        updateListing(edits, editId, config.packageName());
-
-        Commit commitRequest = edits.commit(config.packageName(), editId);
-        commitRequest.execute();
-
-        Logger.log("Changes have been committed");
-    }
-
-    private void updateListing(Edits edits, String editId, String packageName) throws Exception
-    {
         String locale = "en-us";
-        String version = "v4";
+        String version = "v5";
 
         Listing newListing = new Listing();
         newListing.setTitle("Title " + version);
@@ -138,7 +112,7 @@ public class Main
 
         Listings.Update updateListingsRequest = edits
                 .listings()
-                .update(packageName,
+                .update(config.packageName(),
                         editId,
                         locale,
                         newListing);
@@ -146,6 +120,11 @@ public class Main
         updateListingsRequest.execute();
 
         Logger.log("Updated new '%s' app listing", locale);
+
+        Commit commitRequest = edits.commit(config.packageName(), editId);
+        commitRequest.execute();
+
+        Logger.log("Changes have been committed");
     }
 
     private AndroidPublisher publisher(Config config) throws Exception
@@ -153,7 +132,7 @@ public class Main
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-        Logger.log("Authorizing using Service Account: %s", config.serviceAccountEmail());
+        Logger.log("Authorizing using Service Account...");
 
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(httpTransport)
