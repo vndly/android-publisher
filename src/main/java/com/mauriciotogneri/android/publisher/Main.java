@@ -1,7 +1,13 @@
 package com.mauriciotogneri.android.publisher;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apks.Upload;
@@ -16,7 +22,10 @@ import com.google.api.services.androidpublisher.model.Track;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
 
 public class Main
 {
@@ -29,7 +38,7 @@ public class Main
         }
         else
         {
-            System.err.println("Usage: java -jar android-publisher.jar CONFIG_FILE_PATH");
+            Logger.error("Usage: java -jar android-publisher.jar CONFIG_FILE_PATH");
         }
     }
 
@@ -54,8 +63,7 @@ public class Main
 
     private void uploadApk(Config config) throws Exception
     {
-        Authentication authentication = new Authentication();
-        AndroidPublisher service = authentication.publisher(config);
+        AndroidPublisher service = publisher(config);
         Edits edits = service.edits();
 
         Insert editRequest = edits.insert(config.packageName(), null);
@@ -103,8 +111,7 @@ public class Main
 
     private void updateListing(Config config) throws Exception
     {
-        Authentication authentication = new Authentication();
-        AndroidPublisher service = authentication.publisher(config);
+        AndroidPublisher service = publisher(config);
         Edits edits = service.edits();
 
         Insert editRequest = edits.insert(config.packageName(), null);
@@ -139,5 +146,23 @@ public class Main
         updateListingsRequest.execute();
 
         Logger.log("Updated new '%s' app listing", listing.locale());
+    }
+
+    private AndroidPublisher publisher(Config config) throws Exception
+    {
+        HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+        Logger.log("Authorizing using Service Account: %s", config.serviceAccountEmail());
+
+        Credential credential = new GoogleCredential.Builder()
+                .setTransport(httpTransport)
+                .setJsonFactory(jsonFactory)
+                .setServiceAccountId(config.serviceAccountEmail())
+                .setServiceAccountScopes(Collections.singleton(ANDROIDPUBLISHER))
+                .setServiceAccountPrivateKeyFromP12File(new File(config.serviceAccountP12()))
+                .build();
+
+        return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential).setApplicationName("AndroidPublisher").build();
     }
 }

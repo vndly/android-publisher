@@ -39,7 +39,7 @@ class Config
         return serviceAccountEmail;
     }
 
-    String keyP12Path()
+    String serviceAccountP12()
     {
         return serviceAccountP12;
     }
