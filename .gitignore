@@ -1,9 +1,4 @@
 .idea
 target
 *.iml
-config/
-
-service-account.json
-service-account.p12
-test.properties
-listing.json
+classes/
