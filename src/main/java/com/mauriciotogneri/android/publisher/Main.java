@@ -39,7 +39,7 @@ public class Main
         {
             Logger.error(e.getDetails().getMessage());
 
-            System.exit(0);
+            System.exit(-1);
         }
     }
 
@@ -58,7 +58,7 @@ public class Main
                     "-apk APK_FILE_PATH " +
                     "-track TRACK_NAME");
 
-            System.exit(0);
+            System.exit(-1);
 
             return null;
         }
