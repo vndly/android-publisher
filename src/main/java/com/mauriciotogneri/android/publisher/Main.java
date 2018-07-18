@@ -37,7 +37,7 @@ public class Main
         }
         catch (GoogleJsonResponseException e)
         {
-            Logger.error(e.getDetails().getMessage());
+            Logger.log((char)27 + "[31mERROR: " + e.getDetails().getMessage() + (char)27 + "[0m" );
 
             System.exit(-1);
         }
