@@ -3,6 +3,7 @@ package com.mauriciotogneri.android.publisher;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpTransport;
@@ -29,8 +30,17 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        Main main = new Main();
-        main.publish(main.config(args));
+        try
+        {
+            Main main = new Main();
+            main.publish(main.config(args));
+        }
+        catch (GoogleJsonResponseException e)
+        {
+            Logger.error(e.getDetails().getMessage());
+
+            System.exit(0);
+        }
     }
 
     private Config config(String[] args)
