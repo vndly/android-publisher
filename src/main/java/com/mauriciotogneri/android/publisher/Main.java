@@ -13,11 +13,9 @@ import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apks.Upload;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Listings;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks;
 import com.google.api.services.androidpublisher.model.Apk;
 import com.google.api.services.androidpublisher.model.AppEdit;
-import com.google.api.services.androidpublisher.model.Listing;
 import com.google.api.services.androidpublisher.model.Track;
 
 import java.io.File;
@@ -31,17 +29,28 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        if (args.length > 0)
-        {
-            Config config = new Config(args[0]);
+        Main main = new Main();
+        main.publish(main.config(args));
+    }
 
-            Main main = new Main();
-            //main.publish(config);
-            main.updateListing(config);
-        }
-        else
+    private Config config(String[] args)
+    {
+        try
         {
-            Logger.error("Usage: java -jar android-publisher.jar CONFIG_FILE_PATH");
+            return new Config(args);
+        }
+        catch (Exception e)
+        {
+            Logger.error("Usage: java -jar android-publisher.jar " +
+                    "-package PACKAGE_NAME " +
+                    "-email EMAIL " +
+                    "-p12 P12_FILE_PATH " +
+                    "-apk APK_FILE_PATH " +
+                    "-track TRACK_NAME");
+
+            System.exit(0);
+
+            return null;
         }
     }
 
@@ -56,11 +65,11 @@ public class Main
 
         Logger.log("Uploading APK...");
 
-        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apkPath()));
+        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apk()));
         Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
         Apk apk = uploadRequest.execute();
 
-        Logger.log("APK with version code %d has been uploaded", apk.getVersionCode());
+        Logger.log("APK with version code '%d' has been uploaded", apk.getVersionCode());
 
         List<Integer> apkVersionCodes = new ArrayList<>();
         apkVersionCodes.add(apk.getVersionCode());
@@ -75,52 +84,10 @@ public class Main
 
         Logger.log("APK added to track '%s'", updatedTrack.getTrack());
 
-        /*ApkListing newApkListing = new ApkListing();
-        newApkListing.setRecentChanges("...");
-
-        Apklistings.Update updateRecentChangesRequest = edits
-                .apklistings()
-                .update(config.packageName(),
-                        editId,
-                        apk.getVersionCode(),
-                        Locale.US.toString(),
-                        newApkListing);
-        updateRecentChangesRequest.execute();*/
-
         Commit commitRequest = edits.commit(config.packageName(), editId);
         commitRequest.execute();
 
         Logger.log("Changes have been committed");
-    }
-
-    private void updateListing(Config config) throws Exception
-    {
-        AndroidPublisher service = publisher(config);
-        Edits edits = service.edits();
-
-        Insert editRequest = edits.insert(config.packageName(), null);
-        AppEdit edit = editRequest.execute();
-        String editId = edit.getId();
-
-        String locale = "en-us";
-        String version = "v6";
-
-        Listing newListing = new Listing();
-        newListing.setTitle("Title " + version);
-        newListing.setShortDescription("Short description " + version);
-        newListing.setFullDescription("Full description " + version);
-
-        Listings.Update updateListingsRequest = edits
-                .listings()
-                .update(config.packageName(),
-                        editId,
-                        locale,
-                        newListing);
-
-        updateListingsRequest.execute();
-
-        Commit commitRequest = edits.commit(config.packageName(), editId);
-        commitRequest.execute();
     }
 
     private AndroidPublisher publisher(Config config) throws Exception
