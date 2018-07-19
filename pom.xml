@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mauriciotogneri</groupId>
     <artifactId>androidpublisher</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>Android Publisher</name>
     <packaging>jar</packaging>
     <url>https://github.com/mauriciotogneri/android-publisher</url>
@@ -73,18 +73,6 @@
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-androidpublisher</artifactId>
             <version>v3-rev14-1.23.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client-java6</artifactId>
-            <version>1.23.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-jetty</artifactId>
-            <version>1.23.0</version>
         </dependency>
 
         <dependency>

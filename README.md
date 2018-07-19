@@ -2,7 +2,7 @@
 [![Download](https://api.bintray.com/packages/mauriciotogneri/maven/androidpublisher/images/download.svg)](https://bintray.com/mauriciotogneri/maven/androidpublisher/_latestVersion)
 
 # Android Publisher
-An Android App Publisher.
+Java tool to automate the publishing of Android applications.
 
 ## Installation
 
@@ -23,7 +23,7 @@ and the dependency:
 <dependency>
     <groupId>com.mauriciotogneri</groupId>
     <artifactId>androidpublisher</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
 </dependency>
 ```
 
@@ -32,6 +32,6 @@ or if you use Gradle:
 ```groovy
 dependencies
 {
-    compile 'com.mauriciotogneri:androidpublisher:0.0.1'
+    compile 'com.mauriciotogneri:androidpublisher:0.0.2'
 }
 ```

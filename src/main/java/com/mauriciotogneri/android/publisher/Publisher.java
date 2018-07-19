@@ -74,7 +74,7 @@ public class Publisher
         }
     }
 
-    public void publish(String packageName, String email, String p12, String apkPath, String track) throws Exception
+    public void publish(String packageName, String email, String p12, String apkPath, String trackName) throws Exception
     {
         AndroidPublisher service = publisher(email, p12);
         Edits edits = service.edits();
@@ -92,17 +92,21 @@ public class Publisher
         Logger.log("APK with version code '%d' has been uploaded", apk.getVersionCode());
 
         TrackRelease trackRelease = new TrackRelease();
+        trackRelease.setStatus("completed");
         trackRelease.setVersionCodes(Arrays.asList(apk.getVersionCode().longValue()));
 
         List<TrackRelease> releases = new ArrayList<>();
         releases.add(trackRelease);
 
+        Track track = new Track();
+        track.setReleases(releases);
+
         Tracks.Update updateTrackRequest = edits
                 .tracks()
                 .update(packageName,
                         editId,
-                        track,
-                        new Track().setReleases(releases));
+                        trackName,
+                        track);
 
         Track updatedTrack = updateTrackRequest.execute();
 
