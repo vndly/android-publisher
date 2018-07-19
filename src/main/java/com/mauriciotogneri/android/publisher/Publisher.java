@@ -18,26 +18,36 @@ import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks;
 import com.google.api.services.androidpublisher.model.Apk;
 import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Track;
+import com.google.api.services.androidpublisher.model.TrackRelease;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
 
-public class Main
+public class Publisher
 {
     public static void main(String[] args) throws Exception
     {
         try
         {
-            Main main = new Main();
-            main.publish(main.config(args));
+            Publisher publisher = new Publisher();
+            Config config = publisher.config(args);
+
+            publisher.publish(
+                    config.packageName(),
+                    config.serviceAccountEmail(),
+                    config.serviceAccountP12(),
+                    config.apk(),
+                    config.track()
+            );
         }
         catch (GoogleJsonResponseException e)
         {
-            Logger.log((char)27 + "[31mERROR: " + e.getDetails().getMessage() + (char)27 + "[0m" );
+            Logger.log((char) 27 + "[31mERROR: " + e.getDetails().getMessage() + (char) 27 + "[0m");
 
             System.exit(-1);
         }
@@ -64,43 +74,47 @@ public class Main
         }
     }
 
-    private void publish(Config config) throws Exception
+    public void publish(String packageName, String email, String p12, String apkPath, String track) throws Exception
     {
-        AndroidPublisher service = publisher(config);
+        AndroidPublisher service = publisher(email, p12);
         Edits edits = service.edits();
 
-        Insert editRequest = edits.insert(config.packageName(), null);
+        Insert editRequest = edits.insert(packageName, null);
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
         Logger.log("Uploading APK...");
 
-        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(config.apk()));
-        Upload uploadRequest = edits.apks().upload(config.packageName(), editId, apkFile);
+        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(apkPath));
+        Upload uploadRequest = edits.apks().upload(packageName, editId, apkFile);
         Apk apk = uploadRequest.execute();
 
         Logger.log("APK with version code '%d' has been uploaded", apk.getVersionCode());
 
-        List<Integer> apkVersionCodes = new ArrayList<>();
-        apkVersionCodes.add(apk.getVersionCode());
+        TrackRelease trackRelease = new TrackRelease();
+        trackRelease.setVersionCodes(Arrays.asList(apk.getVersionCode().longValue()));
+
+        List<TrackRelease> releases = new ArrayList<>();
+        releases.add(trackRelease);
+
         Tracks.Update updateTrackRequest = edits
                 .tracks()
-                .update(config.packageName(),
+                .update(packageName,
                         editId,
-                        config.track(),
-                        new Track().setVersionCodes(apkVersionCodes));
+                        track,
+                        new Track().setReleases(releases));
 
         Track updatedTrack = updateTrackRequest.execute();
 
         Logger.log("APK added to track '%s'", updatedTrack.getTrack());
 
-        Commit commitRequest = edits.commit(config.packageName(), editId);
+        Commit commitRequest = edits.commit(packageName, editId);
         commitRequest.execute();
 
         Logger.log("Changes have been committed");
     }
 
-    private AndroidPublisher publisher(Config config) throws Exception
+    private AndroidPublisher publisher(String email, String p12) throws Exception
     {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -110,9 +124,9 @@ public class Main
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(httpTransport)
                 .setJsonFactory(jsonFactory)
-                .setServiceAccountId(config.serviceAccountEmail())
+                .setServiceAccountId(email)
                 .setServiceAccountScopes(Collections.singleton(ANDROIDPUBLISHER))
-                .setServiceAccountPrivateKeyFromP12File(new File(config.serviceAccountP12()))
+                .setServiceAccountPrivateKeyFromP12File(new File(p12))
                 .build();
 
         return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential).setApplicationName("AndroidPublisher").build();

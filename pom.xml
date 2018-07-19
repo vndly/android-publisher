@@ -6,8 +6,8 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mauriciotogneri</groupId>
-    <artifactId>android-publisher</artifactId>
-    <version>1.0.0</version>
+    <artifactId>androidpublisher</artifactId>
+    <version>0.0.1</version>
     <name>Android Publisher</name>
     <packaging>jar</packaging>
     <url>https://github.com/mauriciotogneri/android-publisher</url>
@@ -33,25 +33,19 @@
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.mauriciotogneri.android.publisher.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>attach-sources</id>
                         <goals>
-                            <goal>single</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -65,6 +59,13 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>bintray</id>
+            <url>https://api.bintray.com/maven/mauriciotogneri/maven/androidpublisher/;publish=1</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
 
