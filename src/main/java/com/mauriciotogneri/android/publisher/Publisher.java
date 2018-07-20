@@ -41,8 +41,8 @@ public class Publisher
                     config.packageName(),
                     config.serviceAccountEmail(),
                     config.serviceAccountP12(),
-                    config.apk(),
-                    config.track()
+                    config.apkPath(),
+                    config.trackName()
             );
         }
         catch (GoogleJsonResponseException e)
@@ -76,6 +76,8 @@ public class Publisher
 
     public void publish(String packageName, String email, String p12, String apkPath, String trackName) throws Exception
     {
+        Logger.log("Authorizing using service account: %s", email);
+
         AndroidPublisher service = publisher(email, p12);
         Edits edits = service.edits();
 
@@ -83,7 +85,7 @@ public class Publisher
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        Logger.log("Uploading APK...");
+        Logger.log("Uploading APK '%s'", apkPath);
 
         AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(apkPath));
         Upload uploadRequest = edits.apks().upload(packageName, editId, apkFile);
@@ -122,8 +124,6 @@ public class Publisher
     {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-
-        Logger.log("Authorizing using service account");
 
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(httpTransport)

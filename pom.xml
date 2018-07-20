@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mauriciotogneri</groupId>
     <artifactId>androidpublisher</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <name>Android Publisher</name>
     <packaging>jar</packaging>
     <url>https://github.com/mauriciotogneri/android-publisher</url>

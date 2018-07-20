@@ -8,8 +8,8 @@ class Config
     private final String packageName;
     private final String serviceAccountEmail;
     private final String serviceAccountP12;
-    private final String apk;
-    private final String track;
+    private final String apkPath;
+    private final String trackName;
 
     Config(String[] args)
     {
@@ -18,14 +18,14 @@ class Config
         this.packageName = parameters.get("package");
         this.serviceAccountEmail = parameters.get("email");
         this.serviceAccountP12 = parameters.get("p12");
-        this.apk = parameters.get("apk");
-        this.track = parameters.get("track");
+        this.apkPath = parameters.get("apk");
+        this.trackName = parameters.get("track");
 
         if ((packageName == null)
                 || (serviceAccountEmail == null)
                 || (serviceAccountP12 == null)
-                || (apk == null)
-                || (track == null))
+                || (apkPath == null)
+                || (trackName == null))
         {
             throw new RuntimeException();
         }
@@ -68,13 +68,13 @@ class Config
         return serviceAccountP12;
     }
 
-    String apk()
+    String apkPath()
     {
-        return apk;
+        return apkPath;
     }
 
-    String track()
+    String trackName()
     {
-        return track;
+        return trackName;
     }
 }
