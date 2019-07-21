@@ -9,7 +9,14 @@ class Config
     private final String serviceAccountEmail;
     private final String serviceAccountP12;
     private final String apkPath;
+    private final String bundlePath;
     private final String trackName;
+
+    public enum ArtifactType
+    {
+        apk,
+        bundle
+    }
 
     Config(String[] args)
     {
@@ -19,6 +26,7 @@ class Config
         this.serviceAccountEmail = parameters.get("email");
         this.serviceAccountP12 = parameters.get("p12");
         this.apkPath = parameters.get("apk");
+        this.bundlePath = parameters.get("bundle");
         this.trackName = parameters.get("track");
 
         if ((packageName == null)
@@ -68,9 +76,14 @@ class Config
         return serviceAccountP12;
     }
 
-    String apkPath()
+    ArtifactType type()
     {
-        return apkPath;
+        return ((apkPath != null) && (!apkPath.isEmpty())) ? ArtifactType.apk : ArtifactType.bundle;
+    }
+
+    String path()
+    {
+        return (type() == ArtifactType.apk) ? apkPath : bundlePath;
     }
 
     String trackName()

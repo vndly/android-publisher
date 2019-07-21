@@ -11,14 +11,17 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.androidpublisher.AndroidPublisher;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits;
-import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apks.Upload;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Apks;
+import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Bundles;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks;
 import com.google.api.services.androidpublisher.model.Apk;
 import com.google.api.services.androidpublisher.model.AppEdit;
+import com.google.api.services.androidpublisher.model.Bundle;
 import com.google.api.services.androidpublisher.model.Track;
 import com.google.api.services.androidpublisher.model.TrackRelease;
+import com.mauriciotogneri.androidpublisher.Config.ArtifactType;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -41,7 +44,8 @@ public class Publisher
                     config.packageName(),
                     config.serviceAccountEmail(),
                     config.serviceAccountP12(),
-                    config.apkPath(),
+                    config.type(),
+                    config.path(),
                     config.trackName()
             );
         }
@@ -62,11 +66,12 @@ public class Publisher
         catch (Exception e)
         {
             Logger.error("Usage: java -jar android-publisher.jar " +
-                    "-package PACKAGE_NAME " +
-                    "-email EMAIL " +
-                    "-p12 P12_FILE_PATH " +
-                    "-apk APK_FILE_PATH " +
-                    "-track TRACK_NAME");
+                                 "-package PACKAGE_NAME " +
+                                 "-email EMAIL " +
+                                 "-p12 P12_FILE_PATH " +
+                                 "-apk APK_FILE_PATH " +
+                                 "-bundle BUNDLE_FILE_PATH " +
+                                 "-track TRACK_NAME");
 
             System.exit(-1);
 
@@ -74,7 +79,12 @@ public class Publisher
         }
     }
 
-    public void publish(String packageName, String email, String p12, String apkPath, String trackName) throws Exception
+    public void publish(String packageName,
+                        String email,
+                        String p12,
+                        ArtifactType type,
+                        String path,
+                        String trackName) throws Exception
     {
         Logger.log("Authorizing using service account: %s", email);
 
@@ -85,17 +95,33 @@ public class Publisher
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        Logger.log("Uploading APK '%s'", apkPath);
-
-        AbstractInputStreamContent apkFile = new FileContent("application/vnd.android.package-archive", new File(apkPath));
-        Upload uploadRequest = edits.apks().upload(packageName, editId, apkFile);
-        Apk apk = uploadRequest.execute();
-
-        Logger.log("APK with version code '%d' has been uploaded", apk.getVersionCode());
+        Logger.log("Uploading Artifact '%s'", path);
 
         TrackRelease trackRelease = new TrackRelease();
         trackRelease.setStatus("completed");
-        trackRelease.setVersionCodes(Arrays.asList(apk.getVersionCode().longValue()));
+
+        AbstractInputStreamContent file = new FileContent("application/octet-stream", new File(path));
+
+        if (type == ArtifactType.apk)
+        {
+            Apks.Upload uploadRequest = edits.apks().upload(packageName, editId, file);
+            Apk apk = uploadRequest.execute();
+
+            Logger.log("APK with version code '%d' has been uploaded", apk.getVersionCode());
+            trackRelease.setVersionCodes(Arrays.asList(apk.getVersionCode().longValue()));
+        }
+        else if (type == ArtifactType.bundle)
+        {
+            Bundles.Upload uploadRequest = edits.bundles().upload(packageName, editId, file);
+            Bundle bundle = uploadRequest.execute();
+
+            Logger.log("Bundle with version code '%d' has been uploaded", bundle.getVersionCode());
+            trackRelease.setVersionCodes(Arrays.asList(bundle.getVersionCode().longValue()));
+        }
+        else
+        {
+            throw new RuntimeException();
+        }
 
         List<TrackRelease> releases = new ArrayList<>();
         releases.add(trackRelease);
@@ -112,7 +138,7 @@ public class Publisher
 
         Track updatedTrack = updateTrackRequest.execute();
 
-        Logger.log("APK added to track '%s'", updatedTrack.getTrack());
+        Logger.log("Artifact added to track '%s'", updatedTrack.getTrack());
 
         Commit commitRequest = edits.commit(packageName, editId);
         commitRequest.execute();
@@ -133,6 +159,8 @@ public class Publisher
                 .setServiceAccountPrivateKeyFromP12File(new File(p12))
                 .build();
 
-        return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential).setApplicationName("AndroidPublisher").build();
+        return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential)
+                .setApplicationName("AndroidPublisher")
+                .build();
     }
 }

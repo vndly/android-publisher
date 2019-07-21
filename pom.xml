@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.mauriciotogneri</groupId>
     <artifactId>androidpublisher</artifactId>
-    <version>0.0.5</version>
+    <version>1.0.0</version>
     <name>Android Publisher</name>
     <packaging>jar</packaging>
     <url>https://github.com/mauriciotogneri/android-publisher</url>
@@ -24,7 +24,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.7.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -34,13 +34,13 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.1.2</version>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <id>attach-sources</id>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-androidpublisher</artifactId>
-            <version>v3-rev14-1.23.0</version>
+            <version>v3-rev103-1.25.0</version>
         </dependency>
 
         <dependency>

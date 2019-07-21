@@ -35,3 +35,9 @@ dependencies
     implementation 'com.mauriciotogneri:androidpublisher:0.0.5'
 }
 ```
+
+## Usage
+
+```bash
+java -jar android-publisher.jar -package <PACKAGE_NAME> -email <EMAIL> -p12 <P12_FILE_PATH> -apk <APK_FILE_PATH> -bundle <BUNDLE_FILE_PATH> -track <TRACK_NAME>
+```
