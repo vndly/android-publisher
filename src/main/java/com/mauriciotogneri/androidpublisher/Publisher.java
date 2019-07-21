@@ -67,8 +67,8 @@ public class Publisher
         {
             Logger.error("Usage: java -jar android-publisher.jar " +
                                  "-package PACKAGE_NAME " +
-                                 "-email EMAIL " +
-                                 "-p12 P12_FILE_PATH " +
+                                 "-email SERVICE_ACCOUNT_EMAIL " +
+                                 "-p12 SERVICE_ACCOUNT_P12_FILE_PATH " +
                                  "-apk APK_FILE_PATH " +
                                  "-bundle BUNDLE_FILE_PATH " +
                                  "-track TRACK_NAME");
@@ -79,12 +79,40 @@ public class Publisher
         }
     }
 
-    public void publish(String packageName,
-                        String email,
-                        String p12,
-                        ArtifactType type,
-                        String path,
-                        String trackName) throws Exception
+    public void publishApk(String packageName,
+                           String email,
+                           String p12,
+                           String path,
+                           String trackName) throws Exception
+    {
+        publish(packageName,
+                email,
+                p12,
+                ArtifactType.apk,
+                path,
+                trackName);
+    }
+
+    public void publishBundle(String packageName,
+                              String email,
+                              String p12,
+                              String path,
+                              String trackName) throws Exception
+    {
+        publish(packageName,
+                email,
+                p12,
+                ArtifactType.bundle,
+                path,
+                trackName);
+    }
+
+    private void publish(String packageName,
+                         String email,
+                         String p12,
+                         ArtifactType type,
+                         String path,
+                         String trackName) throws Exception
     {
         Logger.log("Authorizing using service account: %s", email);
 
