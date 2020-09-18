@@ -4,11 +4,11 @@ class Logger
 {
     static void log(String text, Object... parameters)
     {
-        System.out.println(String.format(text, parameters));
+        System.out.printf(text + "%n", parameters);
     }
 
     static void error(String text, Object... parameters)
     {
-        System.err.println(String.format(text, parameters));
+        System.err.printf(text + "%n", parameters);
     }
 }

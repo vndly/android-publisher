@@ -23,7 +23,7 @@ and the dependency:
 <dependency>
     <groupId>com.mauriciotogneri</groupId>
     <artifactId>androidpublisher</artifactId>
-    <version>1.1.0</version>
+    <version>1.2.0</version>
 </dependency>
 ```
 
@@ -32,7 +32,7 @@ or if you use Gradle:
 ```groovy
 dependencies
 {
-    implementation 'com.mauriciotogneri:androidpublisher:1.1.0'
+    implementation 'com.mauriciotogneri:androidpublisher:1.2.0'
 }
 ```
 
@@ -40,7 +40,7 @@ dependencies
 
 From console:
 ```bash
-java -jar android-publisher.jar -package <PACKAGE_NAME> -email <SERVICE_ACCOUNT_EMAIL> -p12 <SERVICE_ACCOUNT_P12_FILE_PATH> -apk <APK_FILE_PATH> -bundle <BUNDLE_FILE_PATH> -track <TRACK_NAME>
+java -jar android-publisher.jar -package <PACKAGE_NAME> -serviceAccount <SERVICE_ACCOUNT_FILE_PATH> -apk <APK_FILE_PATH> -bundle <BUNDLE_FILE_PATH> -track <TRACK_NAME>
 ```
 
 From Java:
@@ -49,16 +49,14 @@ Publisher publisher = new Publisher();
 
 publisher.publishApk(
         "PACKAGE_NAME",
-        "SERVICE_ACCOUNT_EMAIL",
-        "SERVICE_ACCOUNT_P12_FILE_PATH",
+        "SERVICE_ACCOUNT_FILE_PATH",
         "APK_FILE_PATH",
         "TRACK_NAME"
 );
 
 publisher.publishBundle(
         "PACKAGE_NAME",
-        "SERVICE_ACCOUNT_EMAIL",
-        "SERVICE_ACCOUNT_P12_FILE_PATH",
+        "SERVICE_ACCOUNT_FILE_PATH",
         "BUNDLE_FILE_PATH",
         "TRACK_NAME"
 );

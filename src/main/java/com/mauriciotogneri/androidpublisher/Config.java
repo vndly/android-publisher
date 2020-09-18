@@ -6,8 +6,7 @@ import java.util.Map;
 class Config
 {
     private final String packageName;
-    private final String serviceAccountEmail;
-    private final String serviceAccountP12;
+    private final String serviceAccount;
     private final String apkPath;
     private final String bundlePath;
     private final String trackName;
@@ -23,16 +22,14 @@ class Config
         Map<String, String> parameters = parameters(args);
 
         this.packageName = parameters.get("package");
-        this.serviceAccountEmail = parameters.get("email");
-        this.serviceAccountP12 = parameters.get("p12");
+        this.serviceAccount = parameters.get("serviceAccount");
         this.apkPath = parameters.get("apk");
         this.bundlePath = parameters.get("bundle");
         this.trackName = parameters.get("track");
 
         if ((packageName == null)
-                || (serviceAccountEmail == null)
-                || (serviceAccountP12 == null)
-                || (apkPath == null)
+                || (serviceAccount == null)
+                || ((apkPath == null) && (bundlePath == null))
                 || (trackName == null))
         {
             throw new RuntimeException();
@@ -66,14 +63,9 @@ class Config
         return packageName;
     }
 
-    String serviceAccountEmail()
+    String serviceAccount()
     {
-        return serviceAccountEmail;
-    }
-
-    String serviceAccountP12()
-    {
-        return serviceAccountP12;
+        return serviceAccount;
     }
 
     ArtifactType type()

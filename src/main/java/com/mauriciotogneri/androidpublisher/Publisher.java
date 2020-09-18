@@ -1,11 +1,11 @@
 package com.mauriciotogneri.androidpublisher;
 
-import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.AbstractInputStreamContent;
 import com.google.api.client.http.FileContent;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -16,6 +16,7 @@ import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Bundles;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Commit;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Insert;
 import com.google.api.services.androidpublisher.AndroidPublisher.Edits.Tracks;
+import com.google.api.services.androidpublisher.AndroidPublisherScopes;
 import com.google.api.services.androidpublisher.model.Apk;
 import com.google.api.services.androidpublisher.model.AppEdit;
 import com.google.api.services.androidpublisher.model.Bundle;
@@ -24,15 +25,17 @@ import com.google.api.services.androidpublisher.model.TrackRelease;
 import com.mauriciotogneri.androidpublisher.Config.ArtifactType;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.api.services.androidpublisher.AndroidPublisherScopes.ANDROIDPUBLISHER;
-
 public class Publisher
 {
+    private static final int TIMEOUT = 600000; // 10 minutes
+
     public static void main(String[] args) throws Exception
     {
         try
@@ -42,8 +45,7 @@ public class Publisher
 
             publisher.publish(
                     config.packageName(),
-                    config.serviceAccountEmail(),
-                    config.serviceAccountP12(),
+                    config.serviceAccount(),
                     config.type(),
                     config.path(),
                     config.trackName()
@@ -67,8 +69,7 @@ public class Publisher
         {
             Logger.error("Usage: java -jar android-publisher.jar " +
                                  "-package PACKAGE_NAME " +
-                                 "-email SERVICE_ACCOUNT_EMAIL " +
-                                 "-p12 SERVICE_ACCOUNT_P12_FILE_PATH " +
+                                 "-serviceAccount SERVICE_ACCOUNT_FILE_PATH " +
                                  "-apk APK_FILE_PATH " +
                                  "-bundle BUNDLE_FILE_PATH " +
                                  "-track TRACK_NAME");
@@ -80,50 +81,45 @@ public class Publisher
     }
 
     public void publishApk(String packageName,
-                           String email,
-                           String p12,
+                           String serviceAccount,
                            String path,
                            String trackName) throws Exception
     {
         publish(packageName,
-                email,
-                p12,
+                serviceAccount,
                 ArtifactType.apk,
                 path,
                 trackName);
     }
 
     public void publishBundle(String packageName,
-                              String email,
-                              String p12,
+                              String serviceAccount,
                               String path,
                               String trackName) throws Exception
     {
         publish(packageName,
-                email,
-                p12,
+                serviceAccount,
                 ArtifactType.bundle,
                 path,
                 trackName);
     }
 
     private void publish(String packageName,
-                         String email,
-                         String p12,
+                         String serviceAccount,
                          ArtifactType type,
                          String path,
                          String trackName) throws Exception
     {
-        Logger.log("Authorizing using service account: %s", email);
+        Logger.log("Authorizing using service account: %s", serviceAccount);
 
-        AndroidPublisher service = publisher(email, p12);
+        AndroidPublisher service = publisher(packageName, serviceAccount);
         Edits edits = service.edits();
 
         Insert editRequest = edits.insert(packageName, null);
         AppEdit edit = editRequest.execute();
         String editId = edit.getId();
 
-        Logger.log("Uploading Artifact '%s'", path);
+        Logger.log("Uploading artifact '%s'", path);
 
         TrackRelease trackRelease = new TrackRelease();
         trackRelease.setStatus("completed");
@@ -174,21 +170,27 @@ public class Publisher
         Logger.log("Changes have been committed");
     }
 
-    private AndroidPublisher publisher(String email, String p12) throws Exception
+    private AndroidPublisher publisher(String packageName, String serviceAccount) throws Exception
     {
+        InputStream serviceAccountStream = new FileInputStream(new File(serviceAccount));
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
 
-        Credential credential = new GoogleCredential.Builder()
-                .setTransport(httpTransport)
-                .setJsonFactory(jsonFactory)
-                .setServiceAccountId(email)
-                .setServiceAccountScopes(Collections.singleton(ANDROIDPUBLISHER))
-                .setServiceAccountPrivateKeyFromP12File(new File(p12))
-                .build();
+        GoogleCredential credential = GoogleCredential
+                .fromStream(serviceAccountStream, httpTransport, jsonFactory)
+                .createScoped(Collections.singleton(AndroidPublisherScopes.ANDROIDPUBLISHER));
 
-        return new AndroidPublisher.Builder(httpTransport, jsonFactory, credential)
-                .setApplicationName("AndroidPublisher")
+        HttpRequestFactory requestFactory = httpTransport.createRequestFactory(
+                request -> {
+                    credential.initialize(request);
+                    request.setConnectTimeout(TIMEOUT);
+                    request.setReadTimeout(TIMEOUT);
+                });
+
+        return new AndroidPublisher.Builder(credential.getTransport(),
+                                            credential.getJsonFactory(),
+                                            requestFactory.getInitializer())
+                .setApplicationName(packageName)
                 .build();
     }
 }
