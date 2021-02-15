@@ -1,39 +1,53 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/mauriciotogneri/android-publisher/blob/master/LICENSE.md)
-[![Download](https://api.bintray.com/packages/mauriciotogneri/maven/androidpublisher/images/download.svg)](https://bintray.com/mauriciotogneri/maven/androidpublisher/_latestVersion)
 
 # Android Publisher
 Java tool to automate the publishing of Android applications.
 
 ## Installation
 
-Add the following code to your **pom.xml**:
+### Maven
+
+Add the following code to your `pom.xml`:
 
 ```xml
 <repositories>
     <repository>
-        <id>jcenter</id>
-        <url>https://jcenter.bintray.com</url>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
     </repository>
 </repositories>
 ```
 
-and the dependency:
+And the dependency:
 
 ```xml
 <dependency>
-    <groupId>com.mauriciotogneri</groupId>
-    <artifactId>androidpublisher</artifactId>
-    <version>1.3.0</version>
+    <groupId>com.github.mauriciotogneri</groupId>
+    <artifactId>android-publisher</artifactId>
+    <version>1.4.0</version>
 </dependency>
 ```
 
-or if you use Gradle:
+### Gradle
+
+Add the following code to your root `build.gradle`:
 
 ```groovy
-dependencies
+allprojects
 {
-    implementation 'com.mauriciotogneri:androidpublisher:1.3.0'
+    repositories
+    {
+        maven
+        {
+            url 'https://jitpack.io'
+        }
+    }
 }
+```
+
+Add the following code to your module `build.gradle`:
+```groovy
+implementation 'com.github.mauriciotogneri:android-publisher:1.4.0'
 ```
 
 ## Usage
